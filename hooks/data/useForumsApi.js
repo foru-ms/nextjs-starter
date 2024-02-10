@@ -4,9 +4,6 @@ const API_KEY = process.env.NEXT_PUBLIC_FORU_MS_API_KEY;
 const API_URL = process.env.NEXT_PUBLIC_FORU_MS_API_URL;
 
 const useForumsApi = () => {
-
-    console.log('API_KEY:', API_KEY);
-
     const fetchUsers = useCallback(async (page) => {
         const response = await fetch(`${API_URL}/api/v1/users?page=${page}`, {
             method: 'GET',
