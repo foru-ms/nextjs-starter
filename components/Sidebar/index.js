@@ -1,32 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
-import Cookies from 'js-cookie';
-import useForumsApi from "@/hooks/data/useForumsApi";
-
-const Sidebar = () => {
+const Sidebar = ({ data }) => {
     const [isMobileNavHidden, setIsMobileNavHidden] = useState(true);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    const api = useForumsApi();
 
     const sidebarHandler = () => {
         setIsMobileNavHidden(!isMobileNavHidden);
     };
-
-    
-    useEffect(() => {
-        const getUser = async (token) => {
-            const userResponse = await api.fetchUser(token);
-            if (userResponse?.id){
-                setIsLoggedIn(true);
-            }
-        };
-  
-        const forumUserToken = Cookies.get('forumUserToken');
-  
-        forumUserToken && getUser(forumUserToken);
-      }, []);
 
     return (
         <div className="min-h-screen border-r border-gray-100 sticky top-0 h-full bg-gray-100 z-20">
@@ -73,7 +53,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-6 py-1 hover:text-blue-700 focus:text-blue-700 focus:outline-none flex items-center">
-                        <Link href={isLoggedIn ? `/logout` : `/login` }>
+                        <Link href={data?.id ? `/logout` : `/login` }>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="icon icon-tabler icon-tabler-users"
@@ -128,7 +108,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-6 py-2 hover:text-blue-700 focus:text-blue-700 focus:outline-none flex items-center">
-                        {isLoggedIn ? (
+                        {data?.id ? (
                         <Link href="/logout" className="ml-2">Logout</Link>
                         ) : (
                             <Link href="/login" className="ml-2">Login/Register</Link>

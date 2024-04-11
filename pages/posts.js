@@ -1,21 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import useForumsApi from '@/hooks/data/useForumsApi';
 
-export default function Posts({ threadId }) {
-    const [posts, setPosts] = useState([]);
-    const [isLoading, setLoading] = useState(true); // Add loading state
-    const api = useForumsApi();
-
-    const getPosts = useCallback(async () => {
-        setLoading(true); // Set loading state to true before fetching data
-        const postsResponse = threadId ? await api.fetchThreadPosts(threadId) : await api.fetchPosts();
-        setPosts(postsResponse?.posts || []);
-        setLoading(false); // Set loading state to false after data is fetched
-    }, [api, threadId]);
-
+export default function Posts({ data }) {
+  
+    const [isLoading, setIsLoading] = useState(false);
+    const [posts, setPosts] = useState(data || []);
+    
     useEffect(() => {
-        getPosts();
-    }, []);
+        setIsLoading(false);
+        setPosts(data);
+    }, [data]);
 
     return (
         <>
@@ -28,7 +22,7 @@ export default function Posts({ threadId }) {
                     <span className="sr-only">Loading...</span>
                 </div>
             ) : (
-                posts.map((post) => (
+                posts?.map((post) => (
                     <div key={post.id} className="flex items-center mb-7">
                         <div className="w-full">
                             <div className="flex items-center justify-between w-full">
@@ -43,3 +37,17 @@ export default function Posts({ threadId }) {
         </>
     );
 }
+
+// export async function getServerSideProps({ query }) {
+//     const { threadId } = query;
+//     const api = useForumsApi();
+//     const postsResponse = threadId ? await api.fetchThreadPosts(threadId) : await api.fetchPosts();
+//     const postsProps = {
+//         posts: postsResponse?.posts
+//     };
+//     return {
+//         props: {
+//             postsProps
+//         }
+//     };
+// }

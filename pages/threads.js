@@ -1,22 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import useForumsApi from '@/hooks/data/useForumsApi';
 
-export default React.memo(function Threads({ threadsProps }) {
-    const [threads, setThreads] = useState([]);
-    const [isLoading, setIsLoading] = useState(true); // Add isLoading state
+export default function Threads({ data }) {
 
-    const api = useForumsApi();
-
-    const getThreads = useCallback(async () => {
-        const threadsResponse = await api.fetchThreads();
-        setThreads(threadsProps?.threads || threadsResponse?.threads);
-        setIsLoading(false); // Set isLoading to false after data is fetched
-    }, [api, threadsProps?.threads]);
-
+    const [isLoading, setIsLoading] = useState(false);
+    const [threads, setThreads] = useState(data || []);
+    
     useEffect(() => {
-        getThreads();
-    }, [threadsProps?.threads]);
+        setIsLoading(false);
+        setThreads(data);
+    }, [data]);
 
     return (
         <>
@@ -30,7 +23,7 @@ export default React.memo(function Threads({ threadsProps }) {
                 </div>
 
             ) : (
-                threads.map((thread) => (
+                threads && threads?.map((thread) => (
                     <Link href={`/thread/${thread.id}`} key={thread.id}>
                         <div className="p-5 hover:bg-gray-100">
                             <div className="md:flex items-center">
@@ -95,4 +88,4 @@ export default React.memo(function Threads({ threadsProps }) {
             )}
         </>
     );
-});
+};

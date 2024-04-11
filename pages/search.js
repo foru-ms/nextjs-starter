@@ -6,13 +6,33 @@ export default function Search({ onSearchResults }) {
     const [searchType, setSearchType] = useState('Threads');
     const [isSubmitting, setSubmittingState] = useState(false);
 
-    const api = useForumsApi();
-
     const handleSearch = async (e) => {
         e.preventDefault();
         setSubmittingState(true);
-        const threadsData = await api.search(searchQuery, searchType.toLowerCase());
-        onSearchResults(threadsData);
+        
+        try {
+            const response = await fetch('/api/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    query: searchQuery,
+                    type: searchType.toLowerCase()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch search results');
+            }
+
+            const searchData = await response.json();
+            console.log('Search results:', searchData);
+            onSearchResults(searchData.threads);
+        } catch (error) {
+            console.error('Error searching:', error);
+        }
+
         setSubmittingState(false);
     };
 

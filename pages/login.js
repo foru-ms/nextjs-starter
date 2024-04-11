@@ -10,25 +10,43 @@ import Cookies from 'js-cookie';
 
 import { useRouter } from "next/router";
 
-const Login = () => {
+const Login = ({ forumUser }) => {
     const [submittingState, setSubmittingState] = useState(false);
 
-    const api = useForumsApi();
+    //const api = useForumsApi();
     const router = useRouter();
+  
+    if (forumUser?.id){
+      router.push(`/`);
+    }
 
     const loginCommon = async (login, password) => {
         try {
-            const response = await api.loginUser(login, password);
-            if (response?.message) {
-                 toast(response.message);
-            } else {
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                login,
+                password,
+              })
+          });
+
+          const data = await response.json();
+
+          if (data) {
+            if (data?.message) {
+                 toast(data.message);
+            } else if(data?.token) {
                 toast.success('Login successful!');
 
-                if (response?.token) {
-                    Cookies.set('forumUserToken', response.token);
+                if (data?.token) {
+                    Cookies.set('forumUserToken', data.token);
                 } 
 
                 router.push(`/`);
+              }
             }
             setSubmittingState(false);
         } catch (error) {
@@ -47,7 +65,17 @@ const Login = () => {
         const password = e.target.password.value;
         
         try {
-            const response = await api.registerUser(username, email, password);
+            const response = await fetch('/api/auth/register', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                username,
+                email,
+                password,
+              })
+          });
             if (response?.message) {
               toast(response.message);
             } else {
@@ -71,25 +99,11 @@ const Login = () => {
         await loginCommon(login, password);
     };
 
-    
-    useEffect(() => {
-      const getUser = async (token) => {
-          const userResponse = await api.fetchUser(token);
-          if (userResponse?.id){
-            router.push(`/`);
-          }
-      };
-
-      const forumUserToken = Cookies.get('forumUserToken');
-
-      forumUserToken && getUser(forumUserToken);
-    }, []);
-
     return (
         <>
             <Meta title="Login" />
             <div className="flex flex-row w-full">
-            <Sidebar />
+            <Sidebar data={forumUser} />
             <div className="flex flex-col lg:w-full items-center justify-center mx-auto md:h-screen lg:py-0">
     <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
       <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -235,5 +249,24 @@ const Login = () => {
 </>
     );
 };
+
+export async function getServerSideProps(context) {
+  const api = useForumsApi();
+  const { forumUserToken } = context.req.cookies;
+  let forumUser = null;
+
+  if (forumUserToken) {
+      const userResponse = await api.fetchUser(forumUserToken);
+      if (userResponse?.id) {
+          forumUser = userResponse;
+      }
+  }
+  
+  return {
+      props: {
+          forumUser,
+      }
+  };
+}
 
 export default Login;

@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 
 import Meta from '@/components/Meta/index';
@@ -12,39 +11,21 @@ import useForumsApi from '@/hooks/data/useForumsApi';
 import Threads from '../threads';
 import Posts from '../posts';
 
-export default function Thread() {
+export default function Thread({ forumUser, threadData, threadPosts, recentThreads, recentPosts }) {
     const router = useRouter();
-
     const [isSubmitting, setSubmittingState] = useState(false);
     const [formData, setFormData] = useState({ body: '' });
-    const [forumUser, setForumUser] = useState(null);
-    const [thread, setThread] = useState(null);
-    const [isLoading, setLoadingState] = useState(true); // Add isLoading state
-
-    const api = useForumsApi();
-
+    const [thread, setThread] = useState(threadData || null);
+    const [recentThreadsData, setRecentThreads] = useState(recentThreads || []);
+    const [recentPostsData, setrecentPosts] = useState(recentPosts || []);
+    const [isLoading, setIsLoading] = useState(true);
+    
     useEffect(() => {
-        const fetchData = async () => {
-            const getUser = async (token) => {
-                const userResponse = await api.fetchUser(token);
-                setForumUser(userResponse);
-            };
-
-            const forumUserToken = Cookies.get('forumUserToken');
-            forumUserToken && getUser(forumUserToken);
-
-            if (router.query.id) {
-                if (!thread) {
-                    setLoadingState(true); // Set isLoading to true when fetching thread
-                    const threadResponse = await api.fetchThread(router.query.id);
-                    setThread(threadResponse);
-                    setLoadingState(false); // Set isLoading to false after fetching thread
-                }
-            }
-        };
-
-        fetchData();
-    }, [thread, router.query.id]);
+        setIsLoading(false);
+        setThread(threadData);
+        setRecentThreads(recentThreads);
+        setrecentPosts(recentPosts);
+    }, [threadData, recentThreads, recentPosts]);
 
     const onChange = (e) => {
         setFormData((prevData) => ({
@@ -59,7 +40,17 @@ export default function Thread() {
 
         if (forumUser?.id) {
             try {
-                const response = await api.createPost(formData.body, router.query.id, forumUser.id);
+                const response = await fetch('/api/createPost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        body: formData.body,
+                        threadId: router.query.id,
+                        userId: forumUser.id,
+                    })
+                });
                 if (response.errors) {
                     Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
                 } else {
@@ -82,7 +73,7 @@ export default function Thread() {
         <>
             <Meta title={`${thread?.title} - Demo Foru.ms`} />
   <div className="flex flex-no-wrap">
-    <Sidebar />
+            <Sidebar data={forumUser} />
     <div className="w-full">
       <div className="w-full px-6">
                     <div className="lg:flex flex-wrap">
@@ -147,16 +138,16 @@ export default function Thread() {
                             {thread?._count.Post > 0 && (
                                 <>
                                     <div className="my-8 text-gray-900 text-xl">Posts</div>
-                                    <Posts threadId={router.query.id} />
+                                    <Posts data={threadPosts} />
                                 </>
                             )}
                         </div>
                         <div className="py-10 lg:w-1/3 w-full md:pl-6">
                             <h3 className="mb-5 text-gray-900 font-medium text-xl">Recent threads</h3>
-                            <Threads />
+                            <Threads data={recentThreadsData} />
                             <hr className="border-t border-gray-300 my-8" />
                             <h3 className="mb-5 text-gray-900 font-medium text-xl">Recent posts</h3>
-                            <Posts />
+                            <Posts data={recentPostsData} />
                         </div>
                     </div>
                 </div>
@@ -164,4 +155,54 @@ export default function Thread() {
                     </div>
         </>
     );
+}
+
+export async function getServerSideProps(context) {
+    const api = useForumsApi();
+    const { id } = context.query;
+
+    const { forumUserToken } = context.req.cookies;
+    let forumUser = null;
+
+    if (forumUserToken) {
+        const userResponse = await api.fetchUser(forumUserToken);
+        if (userResponse?.id) {
+            forumUser = userResponse;
+        }
+    }
+    
+    const fetchThread = async () => {
+        const threadResponse = await api.fetchThread(id);
+        return threadResponse;
+    };
+    const threadData = await fetchThread();
+    
+    const fetchPosts = async () => {
+        const postsResponse = await api.fetchThreadPosts(id);
+        return postsResponse?.posts;
+    };
+    const threadPosts = await fetchPosts();
+
+    
+    const fetchRecentThreads = async () => {
+        const recentThreadsResponse = await api.fetchThreads();
+        return recentThreadsResponse?.threads;
+    };
+    const recentThreads = await fetchRecentThreads();
+    
+    const fetchRecentPosts = async () => {
+        const recentPostsResponse = await api.fetchPosts();
+        return recentPostsResponse?.posts;
+    };
+    const recentPosts = await fetchRecentPosts();
+
+    return {
+        props: {
+            forumUser,
+            threadData,
+            threadPosts,
+            recentThreads,
+            recentPosts,
+        }
+    };
 }
