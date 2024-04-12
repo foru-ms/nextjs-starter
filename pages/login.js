@@ -254,11 +254,18 @@ export async function getServerSideProps(context) {
   const { forumUserToken } = context.req.cookies;
   let forumUser = null;
 
+ 
   if (forumUserToken) {
+    try {
       const userResponse = await api.fetchUser(forumUserToken);
-      if (userResponse?.id) {
-          forumUser = userResponse;
+      console.log('Raw response:', userResponse); // Log the raw response
+      const parsedResponse = JSON.parse(userResponse); // Parse the response
+      if (parsedResponse?.id) {
+        forumUser = parsedResponse;
       }
+    } catch (error) {
+      console.error('Error parsing response:', error);
+    }
   }
   
   return {
