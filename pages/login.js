@@ -33,6 +33,7 @@ const Login = ({ forumUser }) => {
           });
 
           const data = await response.json();
+          console.log('loginCommon data:', data);
 
           if (data) {
             if (data?.message) {
@@ -254,18 +255,11 @@ export async function getServerSideProps(context) {
   const { forumUserToken } = context.req.cookies;
   let forumUser = null;
 
- 
   if (forumUserToken) {
-    try {
       const userResponse = await api.fetchUser(forumUserToken);
-      console.log('Raw response:', userResponse); // Log the raw response
-      const parsedResponse = JSON.parse(userResponse); // Parse the response
-      if (parsedResponse?.id) {
-        forumUser = parsedResponse;
+      if (userResponse?.id) {
+          forumUser = userResponse;
       }
-    } catch (error) {
-      console.error('Error parsing response:', error);
-    }
   }
   
   return {
