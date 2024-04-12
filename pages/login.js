@@ -31,6 +31,7 @@ const Login = ({ forumUser }) => {
                 password,
               })
           });
+          console.log("process.env.FORU_MS_API_URL", process.env.FORU_MS_API_URL)
 
           const data = await response.json();
           console.log('loginCommon data:', data);
