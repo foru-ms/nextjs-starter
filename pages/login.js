@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import useForumsApi from "@/hooks/data/useForumsApi";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
@@ -13,7 +13,6 @@ import { useRouter } from "next/router";
 const Login = ({ forumUser }) => {
     const [submittingState, setSubmittingState] = useState(false);
 
-    //const api = useForumsApi();
     const router = useRouter();
   
     if (forumUser?.id){

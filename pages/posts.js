@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import useForumsApi from '@/hooks/data/useForumsApi';
+import React, { useState, useEffect } from 'react';
 
 export default function Posts({ data }) {
   
@@ -37,17 +36,3 @@ export default function Posts({ data }) {
         </>
     );
 }
-
-// export async function getServerSideProps({ query }) {
-//     const { threadId } = query;
-//     const api = useForumsApi();
-//     const postsResponse = threadId ? await api.fetchThreadPosts(threadId) : await api.fetchPosts();
-//     const postsProps = {
-//         posts: postsResponse?.posts
-//     };
-//     return {
-//         props: {
-//             postsProps
-//         }
-//     };
-// }

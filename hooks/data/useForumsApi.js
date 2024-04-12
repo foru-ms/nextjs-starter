@@ -33,6 +33,7 @@ const useForumsApi = () => {
             body: JSON.stringify({ login: email, password }),
         });
         const data = await response.json();
+        console.log('loginUser data:', data);
         return data;
     };
 
