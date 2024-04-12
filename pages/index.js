@@ -87,13 +87,13 @@ export async function getServerSideProps(context) {
     
     const fetchThreads = async () => {
         const threadsResponse = await api.fetchThreads();
-        return threadsResponse.threads;
+        return threadsResponse?.threads;
     };
     const threads = await fetchThreads();
     
     const fetchPosts = async () => {
         const postsResponse = await api.fetchPosts();
-        return postsResponse.posts;
+        return postsResponse?.posts;
     };
     const posts = await fetchPosts();
 
