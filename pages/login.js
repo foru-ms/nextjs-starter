@@ -31,10 +31,8 @@ const Login = ({ forumUser }) => {
                 password,
               })
           });
-          console.log("process.env.FORU_MS_API_URL", process.env.FORU_MS_API_URL)
 
           const data = await response.json();
-          console.log('loginCommon data:', data);
 
           if (data) {
             if (data?.message) {
@@ -108,9 +106,9 @@ const Login = ({ forumUser }) => {
             <div className="flex flex-col lg:w-full items-center justify-center mx-auto md:h-screen lg:py-0">
     <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
       <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+        <h3 className="mb-5 text-gray-900 font-medium text-xl">
           Login
-        </h1>
+        </h3>
         <form className="space-y-4 md:space-y-6" action="POST" onSubmit={handleLogin}>
           <div>
             <label
@@ -146,7 +144,7 @@ const Login = ({ forumUser }) => {
           </div>
           <button
             type="submit"
-            className="w-full text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="bg-gray-800 text-sm  text-white rounded hover:bg-gray-600 transition duration-150 ease-in-out py-2 px-6"
             disabled={submittingState}
           >
             Login
@@ -158,9 +156,9 @@ const Login = ({ forumUser }) => {
   <div className="flex flex-col lg:w-full items-center justify-center mx-auto md:h-screen lg:py-0">
     <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
       <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+        <h3 className="mb-5 text-gray-900 font-medium text-xl">
           Create an account
-        </h1>
+        </h3>
         <form className="space-y-4 md:space-y-6" action="POST" onSubmit={handleRegister}>
           <div>
             <label
@@ -237,7 +235,7 @@ const Login = ({ forumUser }) => {
           </div>
           <button
             type="submit"
-            className="w-full text-white bg-blue-700 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6"
             disabled={submittingState}
             >
             Create an account

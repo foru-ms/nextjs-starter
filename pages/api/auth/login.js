@@ -4,7 +4,6 @@ export default async function handler(req, res) {
     const api = useForumsApi();
     try {
         const loginData = await api.loginUser(login, password);
-        console.log('loginData:', loginData);
         return res.json(loginData);
     } catch (error) {
         console.error('Error logging in:', error);
