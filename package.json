@@ -11,6 +11,7 @@
   "dependencies": {
     "js-cookie": "^3.0.5",
     "next": "14.1.0",
+    "nextjs-toploader": "^3.6.15",
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1"
