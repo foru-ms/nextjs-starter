@@ -1,4 +1,31 @@
 const useForumsApi = () => {
+    const forgotPassword = async (email) => {
+        const response = await fetch(`${process.env.FORU_MS_API_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.FORU_MS_API_KEY,
+            },
+            body: JSON.stringify({ email }),
+        });
+        const data = await response.json();
+        return data;
+    };    
+
+    const resetPassword = async (email, password, token) => {
+        const response = await fetch(`${process.env.FORU_MS_API_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.FORU_MS_API_KEY,
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        return data;
+    };
+
     const fetchUsers = async (page) => {
         const response = await fetch(`${process.env.FORU_MS_API_URL}/users?page=${page}`, {
             method: 'GET',
@@ -213,6 +240,8 @@ const useForumsApi = () => {
     };
 
     return {
+        forgotPassword,
+        resetPassword,
         fetchUsers,
         registerUser,
         loginUser,
