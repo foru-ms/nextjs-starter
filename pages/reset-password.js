@@ -111,7 +111,7 @@ const ResetPassword = ({ forumUser }) => {
                                 </div>
                                 <div>
                                     <label htmlFor="login-password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                        New Password
+                                        New password
                                     </label>
                                     <input
                                         type="password"
@@ -124,7 +124,7 @@ const ResetPassword = ({ forumUser }) => {
                                 </div>
                                 <div>
                                     <label htmlFor="reset-token" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                        Reset Token
+                                        Reset token
                                     </label>
                                     <textarea
                                         name="token"

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Meta from '@/components/Meta/index';
 import Sidebar from '@/components/Sidebar/index';
 import useForumsApi from '@/hooks/data/useForumsApi';
@@ -15,9 +15,11 @@ export default function NewThread({ forumUser }) {
         body: '',
     });
 
-    if (!forumUser.id){
-        router.push(`/login`);
-    }
+    useEffect(() => {
+        if (!forumUser?.id) {
+            router.push(`/login`);
+        }
+    }, [forumUser]);
 
     const onChange = (e) => {
         setFormData((prevFormData) => ({

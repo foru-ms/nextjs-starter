@@ -75,14 +75,17 @@ const Login = ({ forumUser }) => {
           });
             if (response?.message) {
               toast(response.message);
-            } else {
+            } else if (response?.id) {
                 toast.success('Registration successful!');
                 await loginCommon(email, password);
             }
+            else {
+                toast.error('An error occurred while registering.');
+            }
         } catch (error) {
-            console.error('Error logging in:', error);
+            console.error('Error registering:', error);
             setSubmittingState(false);
-            toast.error('An error occurred while logging in.');
+            toast.error('An error occurred while registering.');
         }
     };
 
@@ -215,7 +218,7 @@ const Login = ({ forumUser }) => {
                     </div>
                     <div className="w-full bg-white rounded-lg shadow dark:border md:mt-4 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                            <h3 className="mb-5 text-gray-900 font-medium text-xl">Forgot Password?</h3>
+                            <h3 className="mb-5 text-gray-900 font-medium text-xl">Forgot password?</h3>
                             <form className="space-y-4 md:space-y-6" action="POST" onSubmit={handleResetPassword}>
                                 <div>
                                     <label htmlFor="reset-email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -235,7 +238,7 @@ const Login = ({ forumUser }) => {
                                     className="bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6"
                                     disabled={resetSubmittingState}
                                 >
-                                    Reset Password
+                                    Reset password
                                 </button>
                             </form>
                         </div>
@@ -316,7 +319,7 @@ const Login = ({ forumUser }) => {
                   className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                   href="#"
                 >
-                  Terms and Conditions
+                  Terms and conditions
                 </Link>
               </label>
             </div>
@@ -326,7 +329,7 @@ const Login = ({ forumUser }) => {
             className="bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6"
             disabled={submittingState}
             >
-            Create an account
+            Create account
           </button>
         </form>
       </div>
