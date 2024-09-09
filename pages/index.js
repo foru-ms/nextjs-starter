@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Meta from '@/components/Meta/index';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar/index';
@@ -7,9 +7,14 @@ import Threads from './threads';
 import Posts from './posts';
 import useForumsApi from '@/hooks/data/useForumsApi';
 
-const Support = ({ forumUser, threads, posts }) => {
+const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) => {
     const [title, setTitle] = useState('');
     const [threadsData, setThreadsData] = useState(threads || []);
+
+    useEffect(() => {
+        setThreadsData(threads);
+    }, [threads]);
+    
     return (
         <>
             <Meta title="Demo Foru.ms" />
@@ -59,13 +64,25 @@ const Support = ({ forumUser, threads, posts }) => {
                                     <div className="mt-6">
                                         <Threads data={threadsData} />
                                     </div>
+                                    <div className="flex justify-between mt-6">
+                                        {currentPage > 1 && (
+                                            <Link href={`/?page=${currentPage - 1}`} className="text-blue-500">
+                                                Previous
+                                            </Link>
+                                        )}
+                                        {nextThreadCursor && (
+                                            <Link href={`/?page=${currentPage + 1}`} className="text-blue-500">
+                                                Next
+                                            </Link>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <div className="py-10 lg:w-1/3 w-full md:pl-6">
                                 <h3 className="mb-5 text-gray-900 font-medium text-xl">
                                     Recent posts
                                 </h3>
-                                <Posts data={posts} />
+                                <Posts data={posts} limit={7} />
                             </div>
                         </div>
                     </div>
@@ -85,11 +102,16 @@ export async function getServerSideProps(context) {
         forumUser = await api.fetchUser(forumUserToken);
     }
     
-    const fetchThreads = async () => {
-        const threadsResponse = await api.fetchThreads();
-        return threadsResponse?.threads;
+    const page = context.query.page || 1; // Default to page 1 if no query param
+
+    const fetchThreads = async (page = 1) => {
+        const threadsResponse = await api.fetchThreads(page);
+        return {
+            threads: threadsResponse?.threads || [],
+            nextThreadCursor: threadsResponse?.nextThreadCursor || null,
+        };
     };
-    const threads = await fetchThreads();
+    const { threads, nextThreadCursor } = await fetchThreads(page);
     
     const fetchPosts = async () => {
         const postsResponse = await api.fetchPosts();
@@ -102,6 +124,8 @@ export async function getServerSideProps(context) {
             forumUser,
             threads,
             posts,
+            currentPage: parseInt(page, 10), // Pass current page to props
+            nextThreadCursor, // Pass nextThreadCursor for pagination control
         }
     };
 }

@@ -144,10 +144,10 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
                         </div>
                         <div className="py-10 lg:w-1/3 w-full md:pl-6">
                             <h3 className="mb-5 text-gray-900 font-medium text-xl">Recent threads</h3>
-                            <Threads data={recentThreadsData} />
+                            <Threads data={recentThreadsData} limit={5} />
                             <hr className="border-t border-gray-300 my-8" />
                             <h3 className="mb-5 text-gray-900 font-medium text-xl">Recent posts</h3>
-                            <Posts data={recentPostsData} />
+                            <Posts data={recentPostsData} limit={5} />
                         </div>
                     </div>
                 </div>

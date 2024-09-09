@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Posts({ data }) {
+export default function Posts({ data, limit = Infinity }) {
   
     const [isLoading, setIsLoading] = useState(false);
     const [posts, setPosts] = useState(data || []);
@@ -21,7 +21,7 @@ export default function Posts({ data }) {
                     <span className="sr-only">Loading...</span>
                 </div>
             ) : (
-                posts?.map((post) => (
+                posts?.slice(0, limit)?.map((post) => (
                     <div key={post.id} className="flex items-center mb-7">
                         <div className="w-full">
                             <div className="flex items-center justify-between w-full">
