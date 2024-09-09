@@ -115,7 +115,7 @@ export async function getServerSideProps(context) {
     
     const fetchPosts = async () => {
         const postsResponse = await api.fetchPosts();
-        return postsResponse?.posts;
+        return postsResponse?.posts || [];
     };
     const posts = await fetchPosts();
 
