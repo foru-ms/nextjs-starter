@@ -12,7 +12,7 @@ export default function Threads({ data, limit = Infinity }) {
         <>
             {threads?.slice(0, limit)?.map((thread) => (
                 <Link href={`/thread/${thread.id}`} key={thread.id}>
-                    <div className="p-5 hover:bg-gray-100">
+                    <div className="p-5 transition duration-150 ease-in-out hover:bg-gray-100">
                         <div className="md:flex items-center">
                             <div className="w-full">
                                 <div className="md:flex items-center justify-between mt-4 md:mt-0 w-full">

@@ -113,7 +113,7 @@ export default function Search({ onSearchResults }) {
                     </div>
                     <div className="w-full md:w-1/2 md:flex justify-end">
                         <button
-                            className="bg-gray-800 text-sm  text-white rounded hover:bg-gray-600 transition duration-150 ease-in-out py-2 px-6 sm:mt-0 mt-4"
+                            className="bg-gray-800 text-sm text-white rounded hover:bg-gray-600 transition duration-150 ease-in-out py-2 px-6 sm:mt-0 mt-4"
                             type="submit"
                             disabled={isSubmitting}
                         >

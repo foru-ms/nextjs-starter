@@ -53,7 +53,7 @@ const Sidebar = ({ data }) => {
                         </Link>
                     </li>
                     <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-6 py-1 hover:text-blue-700 focus:text-blue-700 focus:outline-none flex items-center">
-                        <Link href={data?.id ? `/logout` : `/login` }>
+                        <Link href={data?.id ? `/logout` : `/login`}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="icon icon-tabler icon-tabler-users"
@@ -77,7 +77,7 @@ const Sidebar = ({ data }) => {
                 </ul>
             </div>
             <div
-                className={`absolute top-0 min-h-screen ml-10 flex items-start flex-col bg-gray-100 transition duration-150 ease-in-out ${isMobileNavHidden ? 'hidden' : ''}`}
+                className={`absolute top-0 min-h-screen left-0 ml-10 flex items-start flex-col bg-gray-100 transition duration-300 ease-in-out transform ${isMobileNavHidden ? '-left-full opacity-0 pointer-events-none' : 'left-0 opacity-100 pointer-events-auto'}`}
                 id="mobile-nav"
             >
                 <svg
@@ -109,7 +109,7 @@ const Sidebar = ({ data }) => {
                     </li>
                     <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-6 py-2 hover:text-blue-700 focus:text-blue-700 focus:outline-none flex items-center">
                         {data?.id ? (
-                        <Link href="/logout" className="ml-2">Logout</Link>
+                            <Link href="/logout" className="ml-2">Logout</Link>
                         ) : (
                             <Link href="/login" className="ml-2">Login/Register</Link>
                         )}
