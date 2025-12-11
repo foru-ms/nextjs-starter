@@ -43,7 +43,7 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
             try {
                 const data = await clientApi.posts.create(
                     formData.body,
-                    parseInt(router.query.id, 10),
+                    router.query.id,
                     forumUser.id
                 );
                 
