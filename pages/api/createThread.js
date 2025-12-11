@@ -8,9 +8,8 @@ export default async function handler(req, res) {
 
     const { title, body, userId } = req.body;
 
-    // Validate user ID
-    const userIdNum = parseInt(userId, 10);
-    if (!userId || isNaN(userIdNum) || userIdNum <= 0) {
+    // Validate user ID (UUID string)
+    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
         return res.status(400).json({ 
             error: 'Validation failed',
             message: 'Valid User ID is required',
@@ -30,7 +29,7 @@ export default async function handler(req, res) {
         const { data, status } = await forumsApi.threads.create(
             validation.sanitized.title, 
             validation.sanitized.body, 
-            userIdNum
+            userId
         );
         return res.status(status).json(data);
     } catch (error) {

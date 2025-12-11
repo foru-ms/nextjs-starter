@@ -8,17 +8,15 @@ export default async function handler(req, res) {
 
     const { body, threadId, userId } = req.body;
 
-    // Validate IDs
-    const userIdNum = parseInt(userId, 10);
-    if (!userId || isNaN(userIdNum) || userIdNum <= 0) {
+    // Validate IDs (all are UUID strings)
+    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
         return res.status(400).json({ 
             error: 'Validation failed',
             message: 'Valid User ID is required',
         });
     }
 
-    const threadIdNum = parseInt(threadId, 10);
-    if (!threadId || isNaN(threadIdNum) || threadIdNum <= 0) {
+    if (!threadId || typeof threadId !== 'string' || threadId.trim().length === 0) {
         return res.status(400).json({ 
             error: 'Validation failed',
             message: 'Valid Thread ID is required',
@@ -37,8 +35,8 @@ export default async function handler(req, res) {
     try {
         const { data, status } = await forumsApi.posts.create(
             validation.sanitized.body,
-            threadIdNum,
-            userIdNum
+            threadId,
+            userId
         );
         return res.status(status).json(data);
     } catch (error) {
