@@ -21,6 +21,15 @@ export default function NewThread({ forumUser }) {
         }
     }, [forumUser]);
 
+    useEffect(() => {
+        if (router.query.title) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                title: router.query.title,
+            }));
+        }
+    }, [router.query.title]);
+
     const onChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
