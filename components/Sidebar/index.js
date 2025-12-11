@@ -31,7 +31,7 @@ const Sidebar = ({ data }) => {
                 </svg>
                 <ul aria-orientation="vertical" className="rounded py-8">
                     <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-1 hover:text-blue-700 focus:text-blue-700 focus:outline-none">
-                        <Link href="/">
+                        <Link href="/" title="Home">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="icon icon-tabler icon-tabler-grid"
@@ -53,7 +53,7 @@ const Sidebar = ({ data }) => {
                         </Link>
                     </li>
                     <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-6 py-1 hover:text-blue-700 focus:text-blue-700 focus:outline-none flex items-center">
-                        <Link href={data?.id ? `/logout` : `/login`}>
+                        <Link href={data?.id ? `/logout` : `/login`} title={data?.id ? 'Logout' : 'Login/Register'}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="icon icon-tabler icon-tabler-users"
