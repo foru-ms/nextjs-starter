@@ -73,14 +73,19 @@ const Login = ({ forumUser }) => {
                 password,
               })
           });
-            if (response?.message) {
-              toast(response.message);
-            } else if (response?.id) {
+            
+            const data = await response.json();
+            
+            if (data?.message) {
+              toast(data.message);
+              setSubmittingState(false);
+            } else if (data?.id) {
                 toast.success('Registration successful!');
                 await loginCommon(email, password);
             }
             else {
                 toast.error('An error occurred while registering.');
+                setSubmittingState(false);
             }
         } catch (error) {
             console.error('Error registering:', error);
