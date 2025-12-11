@@ -152,6 +152,7 @@ const Login = ({ forumUser }) => {
                                         type="text"
                                         name="login"
                                         id="username-email"
+                                        autoComplete="username"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         placeholder="username/name@company.com"
                                         required
@@ -165,6 +166,7 @@ const Login = ({ forumUser }) => {
                                         type="password"
                                         name="password"
                                         id="login-password"
+                                        autoComplete="current-password"
                                         placeholder="••••••••"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         required
@@ -172,10 +174,11 @@ const Login = ({ forumUser }) => {
                                 </div>
                                 <button
                                     type="submit"
-                                    className="bg-gray-800 text-sm  text-white rounded hover:bg-gray-600 transition duration-150 ease-in-out py-2 px-6"
+                                    className="bg-gray-800 text-sm text-white rounded hover:bg-gray-600 transition duration-150 ease-in-out py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800"
                                     disabled={submittingState}
+                                    aria-busy={submittingState}
                                 >
-                                    Login
+                                    {submittingState ? 'Logging in...' : 'Login'}
                                 </button>
                             </form>
                         </div>
@@ -192,6 +195,7 @@ const Login = ({ forumUser }) => {
                                         type="email"
                                         name="email"
                                         id="reset-email"
+                                        autoComplete="email"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         placeholder="name@company.com"
                                         required
@@ -199,10 +203,11 @@ const Login = ({ forumUser }) => {
                                 </div>
                                 <button
                                     type="submit"
-                                    className="bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6"
+                                    className="bg-gray-800 text-sm text-white rounded hover:bg-gray-600 transition duration-150 ease-in-out py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800"
                                     disabled={resetSubmittingState}
+                                    aria-busy={resetSubmittingState}
                                 >
-                                    Reset password
+                                    {resetSubmittingState ? 'Processing...' : 'Get reset token'}
                                 </button>
                             </form>
                         </div>
@@ -226,6 +231,7 @@ const Login = ({ forumUser }) => {
               type="text"
               name="username"
               id="username"
+              autoComplete="username"
               className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="my_username"
               required
@@ -242,6 +248,7 @@ const Login = ({ forumUser }) => {
               type="email"
               name="email"
               id="email"
+              autoComplete="email"
               className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="name@company.com"
               required
@@ -258,6 +265,7 @@ const Login = ({ forumUser }) => {
               type="password"
               name="password"
               id="password"
+              autoComplete="new-password"
               placeholder="••••••••"
               className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               required
@@ -290,10 +298,11 @@ const Login = ({ forumUser }) => {
           </div>
           <button
             type="submit"
-            className="bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6"
+            className="bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-700"
             disabled={submittingState}
-            >
-            Create account
+            aria-busy={submittingState}
+          >
+            {submittingState ? 'Creating account...' : 'Create account'}
           </button>
         </form>
       </div>

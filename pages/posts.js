@@ -22,15 +22,17 @@ export default function Posts({ data, limit = Infinity }) {
                 </div>
             ) : (
                 posts?.slice(0, limit)?.map((post) => (
-                    <div key={post.id} className="flex items-center mb-7">
+                    <article key={post.id} className="flex items-center mb-7">
                         <div className="w-full">
                             <div className="flex items-center justify-between w-full">
-                                <h5 className="text-gray-800 text-sm">{post.user?.username}</h5>
-                                <p className="text-xs text-gray-600">{post.createdAt}</p>
+                                <h5 className="text-gray-800 text-sm font-semibold">{post.user?.username}</h5>
+                                <time className="text-xs text-gray-600" dateTime={post.createdAt}>
+                                    {new Date(post.createdAt).toLocaleDateString()}
+                                </time>
                             </div>
                             <p className="mt-3 text-gray-600 text-sm">{post.body}</p>
                         </div>
-                    </div>
+                    </article>
                 ))
             )}
         </>

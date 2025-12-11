@@ -20,7 +20,7 @@ const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) =
             <Meta title="Demo Foru.ms" />
             <div className="flex flex-no-wrap">
                 <Sidebar data={forumUser} />
-                <div className="w-full">
+                <div className="w-full" id="main-content" role="main">
                     <div className="w-full px-6">
                         <div className="lg:flex flex-wrap">
                             <div className="py-10 lg:w-2/3 w-full md:pr-6 md:border-r border-gray-300">
@@ -34,8 +34,10 @@ const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) =
                                             <div className="flex flex-col">
                                                 <label
                                                     htmlFor="post_thread"
-                                                    className="hidden text-gray-800 text-sm font-bold leading-tight tracking-normal mb-2"
-                                                />
+                                                    className="text-gray-800 text-sm font-bold leading-tight tracking-normal mb-2"
+                                                >
+                                                    Thread title
+                                                </label>
                                                 <div className="relative w-full mb-2">
                                                     <input
                                                         id="post_thread"
