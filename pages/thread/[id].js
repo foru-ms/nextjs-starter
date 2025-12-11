@@ -39,6 +39,12 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
         e.preventDefault();
         setSubmittingState(true);
 
+        if (!router.isReady || !router.query.id) {
+            toast.error('Thread ID is missing. Please refresh the page.');
+            setSubmittingState(false);
+            return;
+        }
+
         if (forumUser?.id) {
             try {
                 const data = await clientApi.posts.create(
