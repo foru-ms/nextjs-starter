@@ -15,7 +15,7 @@ const Sidebar = ({ data }) => {
                     onClick={sidebarHandler}
                     aria-label="Toggle navigation menu"
                     aria-expanded={!isMobileNavHidden}
-                    className="p-2 hover:bg-gray-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="p-2 hover:bg-gray-200 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-30"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -38,8 +38,8 @@ const Sidebar = ({ data }) => {
                 </button>
                 <nav aria-label="Main navigation">
                     <ul aria-orientation="vertical" className="rounded py-8">
-                        <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal py-1 hover:text-blue-700 focus-within:text-blue-700">
-                            <Link href="/" aria-label="Home" className="p-2 block hover:bg-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <li className={`text-gray-600 text-sm leading-3 py-1 tracking-normal ${isMobileNavHidden ? 'cursor-pointer hover:text-blue-700 focus-within:text-blue-700' : 'pointer-events-none'}`}>
+                            <Link href="/" aria-label="Home" data-tooltip={isMobileNavHidden ? "Home" : undefined} className={`p-2 block hover:bg-gray-200 rounded relative z-30 ${isMobileNavHidden ? 'tooltip focus:outline-none focus:ring-2 focus:ring-blue-500' : 'pointer-events-none'}`}>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="icon icon-tabler icon-tabler-grid"
@@ -61,8 +61,8 @@ const Sidebar = ({ data }) => {
                                 </svg>
                             </Link>
                         </li>
-                        <li className="cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-6 py-1 hover:text-blue-700 focus-within:text-blue-700 flex items-center">
-                            <Link href={data?.id ? `/logout` : `/login`} aria-label={data?.id ? 'Logout' : 'Login or Register'} className="p-2 block hover:bg-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <li className={`text-gray-600 text-sm leading-3 tracking-normal mt-6 py-1 ${isMobileNavHidden ? 'cursor-pointer hover:text-blue-700 focus-within:text-blue-700' : 'pointer-events-none' } flex items-center`}>
+                            <Link href={data?.id ? `/logout` : `/login`} aria-label={data?.id ? 'Logout' : 'Login or Register'} data-tooltip={isMobileNavHidden ? (data?.id ? 'Logout' : 'Login/Register') : undefined} className={`p-2 block hover:bg-gray-200 rounded relative z-30 ${isMobileNavHidden ? 'tooltip focus:outline-none focus:ring-2 focus:ring-blue-500 ' : 'pointer-events-none'}`}>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="icon icon-tabler icon-tabler-users"
