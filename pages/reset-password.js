@@ -1,7 +1,8 @@
 import Meta from "@/components/Meta";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import useForumsApi from "@/hooks/data/useForumsApi";
+import { forumsApi } from '@/lib/forumsApi';
+import { clientApi } from '@/lib/clientApi';
 import { useState } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
@@ -11,44 +12,23 @@ const ResetPassword = ({ forumUser }) => {
     const [submittingState, setSubmittingState] = useState(false);
 
     const router = useRouter();
-  
-    if (forumUser?.id){
-      router.push(`/`);
-    }
 
     const loginCommon = async (login, password) => {
         try {
-            const response = await fetch('/api/auth/login', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                login,
-                password,
-              })
-          });
+            const data = await clientApi.auth.login(login, password);
 
-          const data = await response.json();
-
-          if (data) {
             if (data?.message) {
-                 toast(data.message);
+                toast(data.message);
             } else if(data?.token) {
                 toast.success('Login successful!');
-
-                if (data?.token) {
-                    Cookies.set('forumUserToken', data.token);
-                } 
-
+                Cookies.set('forumUserToken', data.token);
                 router.push(`/`);
-              }
             }
             setSubmittingState(false);
         } catch (error) {
             console.error('Error logging in:', error);
             setSubmittingState(false);
-            toast.error('An error occurred while logging in.');
+            toast.error(error.message || 'An error occurred while logging in.');
         }
     };
 
@@ -60,18 +40,12 @@ const ResetPassword = ({ forumUser }) => {
         const password = e.target.password.value;
 
         try {
-            const response = await fetch('/api/auth/reset-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: login,
-                    password,
-                    token: e.target.token.value || router.query.token || '',
-                }),
-            });
-            const data = await response.json();
+            const data = await clientApi.auth.resetPassword(
+                login,
+                password,
+                e.target.token.value || router.query.token || ''
+            );
+            
             if (data?.message) {
                 toast(data.message);
                 await loginCommon(login, password);
@@ -82,7 +56,7 @@ const ResetPassword = ({ forumUser }) => {
         } catch (error) {
             console.error('Error resetting password:', error);
             setSubmittingState(false);
-            toast.error('An error occurred while resetting password.');
+            toast.error(error.message || 'An error occurred while resetting password.');
         }
     };
 
@@ -151,22 +125,30 @@ const ResetPassword = ({ forumUser }) => {
 };
 
 export async function getServerSideProps(context) {
-  const api = useForumsApi();
-  const { forumUserToken } = context.req.cookies;
-  let forumUser = null;
+    const { forumUserToken } = context.req.cookies;
 
-  if (forumUserToken) {
-      const userResponse = await api.fetchUser(forumUserToken);
-      if (userResponse?.id) {
-          forumUser = userResponse;
-      }
-  }
-  
-  return {
-      props: {
-          forumUser,
-      }
-  };
+    // If user is already logged in, redirect to home
+    if (forumUserToken) {
+        try {
+            const { data } = await forumsApi.auth.fetchCurrentUser(forumUserToken);
+            if (data?.id) {
+                return {
+                    redirect: {
+                        destination: '/',
+                        permanent: false,
+                    },
+                };
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
+        }
+    }
+
+    return {
+        props: {
+            forumUser: null,
+        }
+    };
 }
 
 export default ResetPassword;

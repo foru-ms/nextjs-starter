@@ -1,7 +1,8 @@
 import Meta from "@/components/Meta";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import useForumsApi from "@/hooks/data/useForumsApi";
+import { forumsApi } from '@/lib/forumsApi';
+import { clientApi } from '@/lib/clientApi';
 import { useState } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
@@ -12,44 +13,23 @@ const Login = ({ forumUser }) => {
     const [resetSubmittingState, setResetSubmittingState] = useState(false);
 
     const router = useRouter();
-  
-    if (forumUser?.id){
-      router.push(`/`);
-    }
 
     const loginCommon = async (login, password) => {
         try {
-            const response = await fetch('/api/auth/login', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                login,
-                password,
-              })
-          });
+            const data = await clientApi.auth.login(login, password);
 
-          const data = await response.json();
-
-          if (data) {
             if (data?.message) {
-                 toast(data.message);
+                toast(data.message);
             } else if(data?.token) {
                 toast.success('Login successful!');
-
-                if (data?.token) {
-                    Cookies.set('forumUserToken', data.token);
-                } 
-
+                Cookies.set('forumUserToken', data.token);
                 router.push(`/`);
-              }
             }
             setSubmittingState(false);
         } catch (error) {
             console.error('Error logging in:', error);
             setSubmittingState(false);
-            toast.error('An error occurred while logging in.');
+            toast.error(error.message || 'An error occurred while logging in.');
         }
     };
 
@@ -62,35 +42,22 @@ const Login = ({ forumUser }) => {
         const password = e.target.password.value;
         
         try {
-            const response = await fetch('/api/auth/register', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                username,
-                email,
-                password,
-              })
-          });
-            
-            const data = await response.json();
+            const data = await clientApi.auth.register(username, email, password);
             
             if (data?.message) {
-              toast(data.message);
-              setSubmittingState(false);
+                toast(data.message);
+                setSubmittingState(false);
             } else if (data?.id) {
                 toast.success('Registration successful!');
                 await loginCommon(email, password);
-            }
-            else {
+            } else {
                 toast.error('An error occurred while registering.');
                 setSubmittingState(false);
             }
         } catch (error) {
             console.error('Error registering:', error);
             setSubmittingState(false);
-            toast.error('An error occurred while registering.');
+            toast.error(error.message || 'An error occurred while registering.');
         }
     };
 
@@ -111,16 +78,8 @@ const Login = ({ forumUser }) => {
         const email = e.target.email.value;
 
         try {
-            const response = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email,
-                }),
-            });
-            const data = await response.json();
+            const data = await clientApi.auth.forgotPassword(email);
+            
             if (data?.resetToken) {
               toast.custom((t) => (
                 <div
@@ -171,7 +130,7 @@ const Login = ({ forumUser }) => {
         } catch (error) {
             console.error('Error resetting password:', error);
             setResetSubmittingState(false);
-            toast.error('An error occurred while resetting password.');
+            toast.error(error.message || 'An error occurred while resetting password.');
         }
     };
 
@@ -346,22 +305,33 @@ const Login = ({ forumUser }) => {
 };
 
 export async function getServerSideProps(context) {
-  const api = useForumsApi();
-  const { forumUserToken } = context.req.cookies;
-  let forumUser = null;
+    const { forumUserToken } = context.req.cookies;
+    let forumUser = null;
 
-  if (forumUserToken) {
-      const userResponse = await api.fetchUser(forumUserToken);
-      if (userResponse?.id) {
-          forumUser = userResponse;
-      }
-  }
-  
-  return {
-      props: {
-          forumUser,
-      }
-  };
+    // Fetch current user if token exists
+    if (forumUserToken) {
+        try {
+            const { data } = await forumsApi.auth.fetchCurrentUser(forumUserToken);
+            if (data?.id) {
+                // User is already logged in, redirect to home
+                return {
+                    redirect: {
+                        destination: '/',
+                        permanent: false,
+                    },
+                };
+            }
+        } catch (error) {
+            // Token invalid - continue to login page
+            console.error('Error fetching user:', error);
+        }
+    }
+
+    return {
+        props: {
+            forumUser,
+        }
+    };
 }
 
 export default Login;

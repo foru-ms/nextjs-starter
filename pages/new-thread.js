@@ -2,7 +2,8 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Meta from '@/components/Meta/index';
 import Sidebar from '@/components/Sidebar/index';
-import useForumsApi from '@/hooks/data/useForumsApi';
+import { forumsApi } from '@/lib/forumsApi';
+import { clientApi } from '@/lib/clientApi';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -14,12 +15,6 @@ export default function NewThread({ forumUser }) {
         title: '',
         body: '',
     });
-
-    useEffect(() => {
-        if (!forumUser?.id) {
-            router.push(`/login`);
-        }
-    }, [forumUser]);
 
     useEffect(() => {
         if (router.query.title) {
@@ -41,32 +36,25 @@ export default function NewThread({ forumUser }) {
         e.preventDefault();
         setSubmittingState(true);
         try {
-            const response = await fetch('/api/createThread', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title: formData.title,
-                    body: formData.body,
-                    userId: forumUser?.id,
-                })
-            });
-            const data = await response.json();
+            const data = await clientApi.threads.create(
+                formData.title,
+                formData.body,
+                forumUser?.id
+            );
+            
             console.log('Thread created:', data);
             setSubmittingState(false);
-            if (response.errors) {
-                Object.values(response.errors).forEach((error) =>
-                    toast.error(error.msg)
-                );
-            } else if (data?.id) {
+            
+            if (data?.id) {
                 toast.success('Thread successfully created!');
                 router.push(`/thread/${data.id}`);
+            } else if (data?.message) {
+                toast.error(data.message);
             }
         } catch (error) {
             console.error('Error creating thread:', error);
             setSubmittingState(false);
-            toast.error('An error occurred while creating the thread.');
+            toast.error(error.message || 'An error occurred while creating the thread.');
         }
     };
 
@@ -146,20 +134,46 @@ export default function NewThread({ forumUser }) {
 }
 
 export async function getServerSideProps(context) {
-  const api = useForumsApi();
-  const { forumUserToken } = context.req.cookies;
-  let forumUser = null;
+    const { forumUserToken } = context.req.cookies;
+    let forumUser = null;
 
-  if (forumUserToken) {
-      const userResponse = await api.fetchUser(forumUserToken);
-      if (userResponse?.id) {
-          forumUser = userResponse;
-      }
-  }
-  
-  return {
-      props: {
-          forumUser,
-      }
-  };
+    // Check if user is authenticated
+    if (!forumUserToken) {
+        return {
+            redirect: {
+                destination: '/login',
+                permanent: false,
+            },
+        };
+    }
+
+    // Fetch current user
+    try {
+        const { data } = await forumsApi.auth.fetchCurrentUser(forumUserToken);
+        if (data?.id) {
+            forumUser = data;
+        } else {
+            // Invalid token
+            return {
+                redirect: {
+                    destination: '/login',
+                    permanent: false,
+                },
+            };
+        }
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        return {
+            redirect: {
+                destination: '/login',
+                permanent: false,
+            },
+        };
+    }
+
+    return {
+        props: {
+            forumUser,
+        }
+    };
 }

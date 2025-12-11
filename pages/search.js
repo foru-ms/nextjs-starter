@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import useForumsApi from '@/hooks/data/useForumsApi';
+import { clientApi } from '@/lib/clientApi';
 
 export default function Search({ onSearchResults }) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -11,22 +11,11 @@ export default function Search({ onSearchResults }) {
         setSubmittingState(true);
         
         try {
-            const response = await fetch('/api/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    query: searchQuery,
-                    type: searchType.toLowerCase()
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch search results');
-            }
-
-            const searchData = await response.json();
+            const searchData = await clientApi.search.query(
+                searchQuery,
+                searchType.toLowerCase()
+            );
+            
             console.log('Search results:', searchData);
             onSearchResults(searchData.threads);
         } catch (error) {

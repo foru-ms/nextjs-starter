@@ -6,7 +6,8 @@ import toast from 'react-hot-toast';
 import Meta from '@/components/Meta/index';
 import Sidebar from '@/components/Sidebar/index';
 
-import useForumsApi from '@/hooks/data/useForumsApi';
+import { forumsApi } from '@/lib/forumsApi';
+import { clientApi } from '@/lib/clientApi';
 
 import Threads from '../threads';
 import Posts from '../posts';
@@ -40,28 +41,23 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
 
         if (forumUser?.id) {
             try {
-                const response = await fetch('/api/createPost', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        body: formData.body,
-                        threadId: router.query.id,
-                        userId: forumUser.id,
-                    })
-                });
-                if (response.errors) {
-                    Object.keys(response.errors).forEach((error) => toast.error(response.errors[error].msg));
-                } else {
+                const data = await clientApi.posts.create(
+                    formData.body,
+                    parseInt(router.query.id, 10),
+                    forumUser.id
+                );
+                
+                if (data?.id) {
                     toast.success('Post successfully created!');
                     router.push(`/thread/${router.query.id}`);
+                } else if (data?.message) {
+                    toast.error(data.message);
                 }
                 setSubmittingState(false);
             } catch (error) {
                 console.error('Error creating post:', error);
                 setSubmittingState(false);
-                toast.error('An error occurred while creating the post.');
+                toast.error(error.message || 'An error occurred while creating the post.');
             }
         } else {
             toast.error('You must be logged in to post a reply.');
@@ -158,51 +154,55 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
 }
 
 export async function getServerSideProps(context) {
-    const api = useForumsApi();
     const { id } = context.query;
-
     const { forumUserToken } = context.req.cookies;
     let forumUser = null;
+    let threadData = null;
 
+    // Fetch current user if token exists
     if (forumUserToken) {
-        const userResponse = await api.fetchUser(forumUserToken);
-        if (userResponse?.id) {
-            forumUser = userResponse;
+        try {
+            const { data } = await forumsApi.auth.fetchCurrentUser(forumUserToken);
+            if (data?.id) {
+                forumUser = data;
+            }
+        } catch (error) {
+            console.error('Error fetching user:', error);
         }
     }
     
-    const fetchThread = async () => {
-        const threadResponse = await api.fetchThread(id);
-        return threadResponse;
-    };
-    const threadData = await fetchThread();
+    // Fetch thread data
+    try {
+        const { data } = await forumsApi.threads.fetchById(id);
+        threadData = data;
+    } catch (error) {
+        console.error('Error fetching thread:', error);
+        return {
+            notFound: true,
+        };
+    }
     
-    const fetchPosts = async () => {
-        const postsResponse = await api.fetchThreadPosts(id);
-        return postsResponse?.posts;
-    };
-    const threadPosts = await fetchPosts();
+    // Fetch all data in parallel
+    try {
+        const [threadPostsResponse, recentThreadsResponse, recentPostsResponse] = await Promise.all([
+            forumsApi.threads.fetchPosts(id),
+            forumsApi.threads.fetchAll(),
+            forumsApi.posts.fetchAll(),
+        ]);
 
-    
-    const fetchRecentThreads = async () => {
-        const recentThreadsResponse = await api.fetchThreads();
-        return recentThreadsResponse?.threads;
-    };
-    const recentThreads = await fetchRecentThreads();
-    
-    const fetchRecentPosts = async () => {
-        const recentPostsResponse = await api.fetchPosts();
-        return recentPostsResponse?.posts;
-    };
-    const recentPosts = await fetchRecentPosts();
-
-    return {
-        props: {
-            forumUser,
-            threadData,
-            threadPosts,
-            recentThreads,
-            recentPosts,
-        }
-    };
+        return {
+            props: {
+                forumUser,
+                threadData,
+                threadPosts: threadPostsResponse.data?.posts || [],
+                recentThreads: recentThreadsResponse.data?.threads || [],
+                recentPosts: recentPostsResponse.data?.posts || [],
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching thread data:', error);
+        return {
+            notFound: true,
+        };
+    }
 }

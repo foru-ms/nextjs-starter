@@ -5,7 +5,7 @@ import Sidebar from '@/components/Sidebar/index';
 import Search from './search';
 import Threads from './threads';
 import Posts from './posts';
-import useForumsApi from '@/hooks/data/useForumsApi';
+import { forumsApi, ApiError } from '@/lib/forumsApi';
 
 const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) => {
     const [title, setTitle] = useState('');
@@ -93,41 +93,52 @@ const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) =
 }
 
 export async function getServerSideProps(context) {
-    const api = useForumsApi();
     const { forumUserToken } = context.req.cookies;
+    const page = context.query.page || 1;
 
     let forumUser = null;
 
+    // Fetch current user if token exists
     if (forumUserToken) {
-        forumUser = await api.fetchUser(forumUserToken);
-    }
-    
-    const page = context.query.page || 1; // Default to page 1 if no query param
-
-    const fetchThreads = async (page = 1) => {
-        const threadsResponse = await api.fetchThreads(page);
-        return {
-            threads: threadsResponse?.threads || [],
-            nextThreadCursor: threadsResponse?.nextThreadCursor || null,
-        };
-    };
-    const { threads, nextThreadCursor } = await fetchThreads(page);
-    
-    const fetchPosts = async () => {
-        const postsResponse = await api.fetchPosts();
-        return postsResponse?.posts || [];
-    };
-    const posts = await fetchPosts();
-
-    return {
-        props: {
-            forumUser,
-            threads,
-            posts,
-            currentPage: parseInt(page, 10), // Pass current page to props
-            nextThreadCursor, // Pass nextThreadCursor for pagination control
+        try {
+            const { data } = await forumsApi.auth.fetchCurrentUser(forumUserToken);
+            if (data?.id) {
+                forumUser = data;
+            }
+        } catch (error) {
+            // Token invalid or expired - continue without user
+            console.error('Error fetching user:', error);
         }
-    };
+    }
+
+    // Fetch threads and posts
+    try {
+        const [threadsResponse, postsResponse] = await Promise.all([
+            forumsApi.threads.fetchAll(page),
+            forumsApi.posts.fetchAll(),
+        ]);
+
+        return {
+            props: {
+                forumUser,
+                threads: threadsResponse.data?.threads || [],
+                posts: postsResponse.data?.posts || [],
+                currentPage: parseInt(page, 10),
+                nextThreadCursor: threadsResponse.data?.nextThreadCursor || null,
+            }
+        };
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return {
+            props: {
+                forumUser,
+                threads: [],
+                posts: [],
+                currentPage: 1,
+                nextThreadCursor: null,
+            }
+        };
+    }
 }
 
 export default Support;
