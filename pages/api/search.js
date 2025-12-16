@@ -1,12 +1,12 @@
 import { forumsApi, ApiError } from '@/lib/forumsApi';
-import { isValidSearchQuery, isValidSearchType, isValidPage } from '@/lib/validation';
+import { isValidSearchQuery, isValidSearchType } from '@/lib/validation';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { query, type, page = 1 } = req.body;
+    const { query, type, cursor } = req.body;
 
     // Validate input
     if (!isValidSearchQuery(query)) {
@@ -23,15 +23,8 @@ export default async function handler(req, res) {
         });
     }
 
-    if (!isValidPage(page)) {
-        return res.status(400).json({ 
-            error: 'Validation failed',
-            message: 'Invalid page number',
-        });
-    }
-
     try {
-        const { data, status } = await forumsApi.search.query(query, type.toLowerCase(), page);
+        const { data, status } = await forumsApi.search.query({ query, type: type.toLowerCase(), cursor });
         return res.status(status).json(data);
     } catch (error) {
         if (error instanceof ApiError) {

@@ -6,16 +6,9 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { body, threadId, userId } = req.body;
+    const { body, threadId, parentId, extendedData } = req.body;
 
-    // Validate IDs (all are UUID strings)
-    if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
-        return res.status(400).json({ 
-            error: 'Validation failed',
-            message: 'Valid User ID is required',
-        });
-    }
-
+    // Validate thread ID
     if (!threadId || typeof threadId !== 'string' || threadId.trim().length === 0) {
         return res.status(400).json({ 
             error: 'Validation failed',
@@ -33,11 +26,12 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { data, status } = await forumsApi.posts.create(
-            validation.sanitized.body,
+        const { data, status } = await forumsApi.posts.create({
+            body: validation.sanitized.body,
             threadId,
-            userId
-        );
+            parentId,
+            extendedData,
+        });
         return res.status(status).json(data);
     } catch (error) {
         if (error instanceof ApiError) {

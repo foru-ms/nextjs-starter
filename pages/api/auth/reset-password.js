@@ -6,7 +6,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { email, password, token } = req.body;
+    const { email, password, oldPassword } = req.body;
 
     // Validate input
     if (!isValidEmail(email)) {
@@ -23,15 +23,8 @@ export default async function handler(req, res) {
         });
     }
 
-    if (!token || typeof token !== 'string') {
-        return res.status(400).json({ 
-            error: 'Validation failed',
-            message: 'Reset token is required',
-        });
-    }
-
     try {
-        const { data, status } = await forumsApi.auth.resetPassword(email, password, token);
+        const { data, status } = await forumsApi.auth.resetPassword({ email, password, oldPassword });
         return res.status(status).json(data);
     } catch (error) {
         if (error instanceof ApiError) {

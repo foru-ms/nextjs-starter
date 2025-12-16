@@ -40,11 +40,11 @@ const ResetPassword = ({ forumUser }) => {
         const password = e.target.password.value;
 
         try {
-            const data = await clientApi.auth.resetPassword(
-                login,
+            const data = await clientApi.auth.resetPassword({
+                email: login,
                 password,
-                e.target.token.value || router.query.token || ''
-            );
+                oldPassword: undefined,
+            });
             
             if (data?.message) {
                 toast(data.message);
