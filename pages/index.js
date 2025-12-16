@@ -7,7 +7,7 @@ import Threads from './threads';
 import Posts from './posts';
 import { forumsApi, ApiError } from '@/lib/forumsApi';
 
-const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) => {
+const Support = ({ forumUser, threads, posts, nextThreadCursor }) => {
     const [title, setTitle] = useState('');
     const [threadsData, setThreadsData] = useState(threads || []);
 
@@ -67,13 +67,8 @@ const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) =
                                         <Threads data={threadsData} />
                                     </div>
                                     <div className="flex justify-between mt-6">
-                                        {currentPage > 1 && (
-                                            <Link href={`/?page=${currentPage - 1}`} className="text-blue-500">
-                                                Previous
-                                            </Link>
-                                        )}
                                         {nextThreadCursor && (
-                                            <Link href={`/?page=${currentPage + 1}`} className="text-blue-500">
+                                            <Link href={`/?cursor=${nextThreadCursor}`} className="text-blue-500">
                                                 Next
                                             </Link>
                                         )}
@@ -96,7 +91,7 @@ const Support = ({ forumUser, threads, posts, currentPage, nextThreadCursor }) =
 
 export async function getServerSideProps(context) {
     const { forumUserToken } = context.req.cookies;
-    const page = context.query.page || 1;
+    const cursor = context.query.cursor || null;
 
     let forumUser = null;
 
@@ -116,7 +111,7 @@ export async function getServerSideProps(context) {
     // Fetch threads and posts
     try {
         const [threadsResponse, postsResponse] = await Promise.all([
-            forumsApi.threads.fetchAll(page),
+            forumsApi.threads.fetchAll({ cursor }),
             forumsApi.posts.fetchAll(),
         ]);
 
@@ -125,8 +120,7 @@ export async function getServerSideProps(context) {
                 forumUser,
                 threads: threadsResponse.data?.threads || [],
                 posts: postsResponse.data?.posts || [],
-                currentPage: parseInt(page, 10),
-                nextThreadCursor: threadsResponse.data?.nextThreadCursor || null,
+                nextThreadCursor: threadsResponse.data?.cursor || null,
             }
         };
     } catch (error) {
