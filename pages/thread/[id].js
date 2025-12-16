@@ -47,11 +47,10 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
 
         if (forumUser?.id) {
             try {
-                const data = await clientApi.posts.create(
-                    formData.body,
-                    router.query.id,
-                    forumUser.id
-                );
+                const data = await clientApi.posts.create({
+                    body: formData.body,
+                    threadId: router.query.id,
+                });
                 
                 if (data?.id) {
                     toast.success('Post successfully created!');
