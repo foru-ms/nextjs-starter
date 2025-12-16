@@ -16,7 +16,8 @@ export default async function handler(req, res) {
         });
     }
 
-    if (!isValidSearchType(type)) {
+    const normalizedType = type ? type.toLowerCase() : '';
+    if (!isValidSearchType(normalizedType)) {
         return res.status(400).json({ 
             error: 'Validation failed',
             message: 'Search type must be one of: threads, posts, all',
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { data, status } = await forumsApi.search.query({ query, type: type.toLowerCase(), cursor });
+        const { data, status } = await forumsApi.search.query({ query, type: normalizedType, cursor });
         return res.status(status).json(data);
     } catch (error) {
         if (error instanceof ApiError) {

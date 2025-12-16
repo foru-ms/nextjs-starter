@@ -11,10 +11,10 @@ export default function Search({ onSearchResults }) {
         setSubmittingState(true);
         
         try {
-            const searchData = await clientApi.search.query(
-                searchQuery,
-                searchType.toLowerCase()
-            );
+            const searchData = await clientApi.search.query({
+                query: searchQuery,
+                type: searchType.toLowerCase(),
+            });
             
             console.log('Search results:', searchData);
             onSearchResults(searchData.threads);
