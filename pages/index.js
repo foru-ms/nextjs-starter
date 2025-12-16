@@ -7,7 +7,7 @@ import Threads from './threads';
 import Posts from './posts';
 import { forumsApi, ApiError } from '@/lib/forumsApi';
 
-const Support = ({ forumUser, threads, posts, nextThreadCursor }) => {
+const Support = ({ forumUser, threads, posts, nextThreadCursor, cursor }) => {
     const [title, setTitle] = useState('');
     const [threadsData, setThreadsData] = useState(threads || []);
 
@@ -66,10 +66,15 @@ const Support = ({ forumUser, threads, posts, nextThreadCursor }) => {
                                     <div className="mt-6">
                                         <Threads data={threadsData} />
                                     </div>
-                                    <div className="flex justify-between mt-6">
+                                    <div className="flex justify-between items-center mt-6">
+                                        {cursor && (
+                                            <Link href="/" className="text-blue-500">
+                                                &larr; Previous
+                                            </Link>
+                                        )}
                                         {nextThreadCursor && (
-                                            <Link href={`/?cursor=${nextThreadCursor}`} className="text-blue-500">
-                                                Next
+                                            <Link href={`/?cursor=${nextThreadCursor}`} className="text-blue-500 ml-auto">
+                                                Next &rarr;
                                             </Link>
                                         )}
                                     </div>
@@ -121,6 +126,7 @@ export async function getServerSideProps(context) {
                 threads: threadsResponse.data?.threads || [],
                 posts: postsResponse.data?.posts || [],
                 nextThreadCursor: threadsResponse.data?.cursor || null,
+                cursor: cursor || null,
             }
         };
     } catch (error) {
