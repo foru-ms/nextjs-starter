@@ -7,6 +7,7 @@ import Meta from '@/components/Meta/index';
 import Sidebar from '@/components/Sidebar/index';
 
 import { forumsApi } from '@/lib/forumsApi';
+import { validatePost } from '@/lib/validation';
 import { clientApi } from '@/lib/clientApi';
 
 import Threads from '../threads';
@@ -47,8 +48,16 @@ export default function Thread({ forumUser, threadData, threadPosts, recentThrea
 
         if (forumUser?.id) {
             try {
+                // Client-side validation to prevent unnecessary API calls
+                const validation = validatePost(formData.body);
+                if (!validation.isValid) {
+                    toast.error(validation.errors.join(', '));
+                    setSubmittingState(false);
+                    return;
+                }
+
                 const data = await clientApi.posts.create({
-                    body: formData.body,
+                    body: validation.sanitized.body,
                     threadId: router.query.id,
                 });
                 
