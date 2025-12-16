@@ -36,11 +36,10 @@ export default function NewThread({ forumUser }) {
         e.preventDefault();
         setSubmittingState(true);
         try {
-            const data = await clientApi.threads.create(
-                formData.title,
-                formData.body,
-                forumUser?.id
-            );
+            const data = await clientApi.threads.create({
+                title: formData.title,
+                body: formData.body,
+            });
             
             console.log('Thread created:', data);
             setSubmittingState(false);

@@ -7,6 +7,15 @@ export default async function handler(req, res) {
     }
 
     const { title, slug, body, locked, pinned, tags, poll, extendedData } = req.body;
+    const { forumUserToken } = req.cookies;
+
+    // Check authentication
+    if (!forumUserToken) {
+        return res.status(401).json({ 
+            error: 'Unauthorized',
+            message: 'You must be logged in to create a thread',
+        });
+    }
 
     // Validate thread data
     const validation = validateThread(title, body);
@@ -27,7 +36,7 @@ export default async function handler(req, res) {
             tags,
             poll,
             extendedData,
-        });
+        }, forumUserToken);
         return res.status(status).json(data);
     } catch (error) {
         if (error instanceof ApiError) {

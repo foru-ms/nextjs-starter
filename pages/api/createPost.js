@@ -7,6 +7,15 @@ export default async function handler(req, res) {
     }
 
     const { body, threadId, parentId, extendedData } = req.body;
+    const { forumUserToken } = req.cookies;
+
+    // Check authentication
+    if (!forumUserToken) {
+        return res.status(401).json({ 
+            error: 'Unauthorized',
+            message: 'You must be logged in to create a post',
+        });
+    }
 
     // Validate thread ID
     if (!threadId || typeof threadId !== 'string' || threadId.trim().length === 0) {
@@ -31,7 +40,7 @@ export default async function handler(req, res) {
             threadId,
             parentId,
             extendedData,
-        });
+        }, forumUserToken);
         return res.status(status).json(data);
     } catch (error) {
         if (error instanceof ApiError) {
