@@ -1,3 +1,5 @@
+Try our new TypeScript Next.js App Router-based forum template: [Base Forum Template](https://github.com/foru-ms/base-forum)
+
 This is a [Foru.ms](https://foru.ms/) Next.js starter bootstrapped with the minimal endpoints to get you started.
 
 ## Getting Started
